@@ -1,5 +1,6 @@
 ﻿@page "/"
 @using Microsoft.AspNetCore.SignalR.Client
+@using BlazorServerSignalRApp.Data
 @inject NavigationManager Navigation
 @implements IAsyncDisposable
 
@@ -38,9 +39,9 @@
             .WithUrl(Navigation.ToAbsoluteUri("/chathub"))
             .Build();
 
-        hubConnection.On<string, string>("ReceiveMessage", (user, message) =>
+        hubConnection.On<Message>("ReceiveMessage", (message) =>
         {
-            var encodedMsg = $"{user}: {message}";
+            var encodedMsg = $"{message.Username}: {message.Content}";
             messages.Add(encodedMsg);
             InvokeAsync(StateHasChanged);
         });
@@ -52,7 +53,14 @@
     {
         if (hubConnection is not null)
             {
-                await hubConnection.SendAsync("SendMessage", userInput, messageInput);
+                if (userInput == null || messageInput == null) {
+                    throw new InvalidDataException("userInput or messageInput cannot be null");
+                }
+                var message = new Message(){
+                    Username = userInput,
+                    Content = messageInput
+                };
+                await hubConnection.SendAsync("SendMessage", message);
             }
     }
 
