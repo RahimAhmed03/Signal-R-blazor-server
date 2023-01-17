@@ -9,12 +9,22 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
-builder.Services.AddSingleton<WeatherForecastService>();
 builder.Services.AddResponseCompression(opts =>
 {
     opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
         new[] { "application/octet-stream" });
 });
+
+TranslationService? translationService;
+if (String.IsNullOrEmpty(Environment.GetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS")))
+{
+    translationService = new MockTranslationService();
+}
+else
+{
+    translationService = new GoogleTranslationService();
+}
+builder.Services.AddSingleton<TranslationService>(translationService);
 
 var app = builder.Build();
 app.UseResponseCompression();
