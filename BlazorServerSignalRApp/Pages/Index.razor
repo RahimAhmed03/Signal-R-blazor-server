@@ -39,7 +39,10 @@
 </div>
 <button @onclick="Search" >Search</button>
 @foreach (var item in sticker) {
-    <img src= "@item.stickerImg" style="height: 50px"/>
+    <button @onclick="(()=> SendImage(item.stickerImg))">
+        <img src= "@item.stickerImg" style="height: 50px" />
+    </button>
+
 }
 
 <hr>
