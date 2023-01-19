@@ -109,6 +109,21 @@
         }
     }
 
+    private async Task SendImage(string image) {
+        if (hubConnection is not null) {
+            if (userInput == null || String.IsNullOrEmpty(image)) {
+                throw new InvalidDataException();
+            }
+
+            var message = new Message(){
+                Username = userInput,
+                Content = "",
+                Image = image
+            };
+            await hubConnection.SendAsync("SendMessage", message);
+        }
+    }
+
     private async Task Search()
     {
         var response = await StickerService.Search("1", stickerSearch);
