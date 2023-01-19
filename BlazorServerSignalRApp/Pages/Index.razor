@@ -31,6 +31,16 @@
     </label>
 </div>
 <button @onclick="Send" disabled="@(!IsConnected)">Send</button>
+<div class="form-group">
+    <label>
+        Search:
+        <input @bind="stickerSearch" size="50" />
+    </label>
+</div>
+<button @onclick="Search" >Search</button>
+@foreach (var item in sticker) {
+    <img src= "@item.stickerImg"/>
+}
 
 <hr>
 
@@ -47,6 +57,8 @@
 @code {
     private HubConnection? hubConnection;
     private List<MessageListContent> messages = new List<MessageListContent>();
+    private string? stickerSearch;
+    private List<Sticker.StickerContent> sticker = new();
     private string? userInput;
     private string? messageInput;
     private string? translationTargetLanguageInput;
@@ -93,6 +105,13 @@
             };
             await hubConnection.SendAsync("SendMessage", message);
         }
+    }
+
+    private async Task Search()
+    {
+        var response = await StickerService.Search("1", stickerSearch);
+        sticker = response.body.stickerList;
+        InvokeAsync(StateHasChanged);
     }
 
     public bool IsConnected =>
