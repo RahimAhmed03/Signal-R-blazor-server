@@ -26,10 +26,10 @@ else
 }
 builder.Services.AddSingleton<TranslationService>(translationService);
 
-var apiKey = Environment.GetEnvironmentVariable("STIPOP_APIKEY")
+var apiKey = Environment.GetEnvironmentVariable("STIPOP_APIKEY");
 if (String.IsNullOrEmpty(apiKey)) throw new InvalidOperationException("Server cannot run without API key of Stipop");
 StickerService stickerService = new StickerService(apiKey);
-builder.Services.AddSingleton<StickerService>();
+builder.Services.AddSingleton<StickerService>(stickerService);
 
 var app = builder.Build();
 app.UseResponseCompression();
