@@ -37,7 +37,20 @@
         <input @bind="stickerSearch" size="50" />
     </label>
 </div>
-<button @onclick="Search" >Search</button>
+
+<a class="btn btn-login" @onclick="RedirectPage" >Search</a>
+
+<Popup @ref="popupRef" />
+
+@code{
+    private Popup popupRef;
+    
+    private void RedirectPage()
+    {
+        // Shows the popup at the center of the screen
+        popupRef.Show("Popup body text");
+    }
+}
 @foreach (var item in sticker) {
     <button @onclick="(()=> SendImage(item.stickerImg))">
         <img src= "@item.stickerImg" style="height: 50px" />
