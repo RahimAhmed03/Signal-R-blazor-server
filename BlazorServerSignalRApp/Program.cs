@@ -31,6 +31,8 @@ if (String.IsNullOrEmpty(apiKey)) throw new InvalidOperationException("Server ca
 StickerService stickerService = new StickerService(apiKey);
 builder.Services.AddSingleton<StickerService>(stickerService);
 
+builder.Services.AddSingleton<ChannelService>();
+
 var app = builder.Build();
 app.UseResponseCompression();
 
