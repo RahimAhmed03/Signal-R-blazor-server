@@ -38,7 +38,8 @@
     </label>
 </div>
 
-<a class="btn btn-login" @onclick="RedirectPage" >Search</a>
+<button a class="btn btn-login" @onclick="RedirectPage"  >Search</button>
+
 
 <Popup @ref="popupRef" />
 
@@ -48,7 +49,7 @@
     private void RedirectPage()
     {
         // Shows the popup at the center of the screen
-        popupRef.Show("Popup body text");
+        popupRef.Show(" ");
     }
 }
 @foreach (var item in sticker) {
