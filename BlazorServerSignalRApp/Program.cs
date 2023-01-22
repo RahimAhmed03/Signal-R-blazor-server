@@ -1,8 +1,8 @@
-using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
 using BlazorServerSignalRApp.Data;
 using Microsoft.AspNetCore.ResponseCompression;
 using BlazorServerSignalRApp.Server.Hubs;
+using Microsoft.AspNetCore.SignalR.Client;
+using Microsoft.AspNetCore.Components;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +13,14 @@ builder.Services.AddResponseCompression(opts =>
 {
     opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
         new[] { "application/octet-stream" });
+});
+
+builder.Services.AddScoped(sp =>
+{
+    var Navigation = sp.GetRequiredService<NavigationManager>();
+    return new HubConnectionBuilder()
+        .WithUrl(Navigation.ToAbsoluteUri("/chathub"))
+        .Build();
 });
 
 TranslationService? translationService;
@@ -31,7 +39,7 @@ if (String.IsNullOrEmpty(apiKey)) throw new InvalidOperationException("Server ca
 StickerService stickerService = new StickerService(apiKey);
 builder.Services.AddSingleton<StickerService>(stickerService);
 
-builder.Services.AddSingleton<ChannelService>();
+builder.Services.AddSingleton<ChannelStorage>();
 
 var app = builder.Build();
 app.UseResponseCompression();

@@ -1,10 +1,6 @@
 @page "/channel/{ChannelName}"
 @using Microsoft.AspNetCore.SignalR.Client
 @using BlazorServerSignalRApp.Data
-@inject NavigationManager Navigation
-@inject TranslationService TranslationService
-@inject StickerService StickerService
-@inject ChannelService ChannelService
 @implements IAsyncDisposable
 
 <div class="form-group">
@@ -38,10 +34,11 @@
         <input @bind="stickerSearch" size="50" />
     </label>
 </div>
-<button @onclick="Search" >Search</button>
-@foreach (var item in sticker) {
+<button @onclick="Search">Search</button>
+@foreach (var item in sticker)
+{
     <button @onclick="(()=> SendImage(item.stickerImg))">
-        <img src= "@item.stickerImg" style="height: 50px" />
+        <img src="@item.stickerImg" style="height: 50px" />
     </button>
 
 }
@@ -49,34 +46,38 @@
 <hr>
 
 <ul id="messagesList">
-    @foreach (var message in messages)
-    {
-        <li>
-            <p>@message.Username: @message.Content</p>
-            <img src="@message.Image" style="height: 100px" />
-            <p>Translated: @message.TranslatedContent</p>
-        </li>
-    }
+    @if (messages.ContainsKey(ChannelName))
+        @foreach (var message in messages[ChannelName])
+        {
+            <li>
+                <p>@message.Username: @message.Content</p>
+                <img src="@message.Image" style="height: 100px" />
+                <p>Translated: @message.TranslatedContent</p>
+            </li>
+        }
 </ul>
 
 @code {
-    [Parameter]
-    public string ChannelName { get; set; }
-    private HubConnection? hubConnection;
-    private List<MessageListContent> messages = new List<MessageListContent>();
+    [Parameter] public string ChannelName { get; set; }
+    [Inject] private HubConnection hubConnection { get; set; } = default!;
+    [Inject] private NavigationManager Navigation { get; set; } = default!;
+    [Inject] private TranslationService TranslationService { get; set; } = default!;
+    [Inject] private StickerService StickerService { get; set; } = default!;
+    private Dictionary<string, List<MessageListContent>> messages = new Dictionary<string, List<MessageListContent>>();
     private string? stickerSearch;
     private List<Sticker.StickerContent> sticker = new();
     private string? userInput;
     private string? messageInput;
     private string? translationTargetLanguageInput;
+    private List<IDisposable> _disposables = new();
+    private bool IsDisposed = false;
 
     protected override async Task OnInitializedAsync()
     {
-        hubConnection = new HubConnectionBuilder()
-        .WithUrl(Navigation.ToAbsoluteUri("/chathub"))
-        .Build();
+        await hubConnection.SendAsync("JoinChannel", ChannelName);
+        if (!messages.ContainsKey(ChannelName)) messages[ChannelName] = new List<MessageListContent>();
 
-        hubConnection.On<Message>("ReceiveMessage", (message) =>
+        _disposables.Add(hubConnection.On<Message>("ReceiveMessage", (message) =>
         {
             var messageListContent = new MessageListContent()
             {
@@ -91,72 +92,78 @@
                 messageListContent.TranslatedContent = translation.TranslatedText;
             }
 
-            messages.Add(messageListContent);
+            messages[ChannelName].Add(messageListContent);
             InvokeAsync(StateHasChanged);
-        });
-
-        await hubConnection.StartAsync();
-
-        await hubConnection.SendAsync("JoinChannel", ChannelName);
+        }));
 
         Navigation.LocationChanged += HandleLocationChanged;
+        _disposables.Add(Navigation.RegisterLocationChangingHandler(HandleLocationChanging));
+    }
+
+    private async ValueTask HandleLocationChanging(LocationChangingContext context)
+    {
+        await hubConnection.SendAsync("LeaveChannel", ChannelName);
+    }
+
+    private void HandleLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        if (IsDisposed)
+        {
+            Navigation.LocationChanged -= HandleLocationChanged;
+            return;
+        }
+
+        hubConnection.SendAsync("JoinChannel", ChannelName);
     }
 
     private async Task Send()
     {
-        if (hubConnection is not null)
+        if (userInput == null || messageInput == null)
         {
-            if (userInput == null || messageInput == null)
-            {
-                throw new InvalidDataException("userInput or messageInput cannot be null");
-            }
-            var message = new Message()
-            {
-                Username = userInput,
-                Content = messageInput
-            };
-            await hubConnection.SendAsync("SendMessageToChannel", ChannelName, message);
+            throw new InvalidDataException("userInput or messageInput cannot be null");
         }
+
+        var message = new Message()
+        {
+            Username = userInput,
+            Content = messageInput
+        };
+        await hubConnection.SendAsync("SendMessage", message);
     }
 
-    private async Task SendImage(string image) {
-        if (hubConnection is not null) {
-            if (userInput == null || String.IsNullOrEmpty(image)) {
-                throw new InvalidDataException();
-            }
-
-            var message = new Message(){
-                Username = userInput,
-                Content = "",
-                Image = image
-            };
-            await hubConnection.SendAsync("SendMessage", message);
+    private async Task SendImage(string image)
+    {
+        if (userInput == null || String.IsNullOrEmpty(image))
+        {
+            throw new InvalidDataException();
         }
+
+        var message = new Message()
+        {
+            Username = userInput,
+            Content = "",
+            Image = image
+        };
+        await hubConnection.SendAsync("SendMessage", message);
     }
 
     private async Task Search()
     {
         var response = await StickerService.Search("1", stickerSearch);
         sticker = response.body.stickerList;
-        InvokeAsync(StateHasChanged);
-    }
-
-    private void HandleLocationChanged(object? sender, LocationChangedEventArgs e)
-    {
-        if (hubConnection != null) {
-            hubConnection.SendAsync("QuitChannel", ChannelName);
-        }
+        await InvokeAsync(StateHasChanged);
     }
 
     public bool IsConnected =>
-    hubConnection?.State == HubConnectionState.Connected;
+    hubConnection.State == HubConnectionState.Connected;
 
     public async ValueTask DisposeAsync()
     {
-        if (hubConnection is not null)
-        {
-            await hubConnection.DisposeAsync();
-        }
+        await hubConnection.SendAsync("LeaveChannel", ChannelName);
+
+        _disposables.ForEach(d => d.Dispose());
+        _disposables.Clear();
+        IsDisposed = true;
     }
 
     internal class MessageListContent

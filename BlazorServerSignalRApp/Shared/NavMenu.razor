@@ -1,5 +1,4 @@
 ﻿@using BlazorServerSignalRApp.Data
-@inject ChannelService ChannelService
 
 <div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
@@ -13,9 +12,16 @@
 <div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
     <nav class="flex-column">
         <div class="nav-item px-3">
-            @foreach (var channelName in ChannelService.Channels) {
-                <NavLink class="nav-link" href="@($"/channel/{channelName}")">
-                    <span class="oi oi-home" aria-hidden="true"></span> @channelName
+            @foreach (var channel in ChannelStorage.Channels)
+            {
+                <NavLink class="nav-link" href="@($"/channel/{channel.Name}")">
+                    <div style="display: flex; flex-direction: column;">
+                        <div style="display: flex; align-items: center; padding-bottom: 10px;">
+                            <span class="oi oi-home" aria-hidden="true"></span>
+                            <span>@channel.Name</span>
+                        </div>
+                        <div>@channel.ConnectionIds.Count users active</div>
+                    </div>
                 </NavLink>
             }
         </div>
@@ -24,6 +30,7 @@
 
 @code {
     private bool collapseNavMenu = true;
+    [Inject] private ChannelStorage ChannelStorage { get; set; } = default!;
 
     private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
 
