@@ -4,7 +4,8 @@ namespace BlazorServerSignalRApp.Data;
 
 public class GoogleTranslationService : TranslationService
 {
-    private TranslationServiceClient client = TranslationServiceClient.Create();
+    private TranslationServiceClient client;
+    private string? parent => Environment.GetEnvironmentVariable("GOOGLE_TRANSLATION_PARENT");
 
     public GoogleTranslationService()
     {
@@ -144,6 +145,12 @@ public class GoogleTranslationService : TranslationService
             new Language() { Name = "Yoruba", Code = "yo" },
             new Language() { Name = "Zulu", Code = "zu" },
         };
+
+        var builder = new TranslationServiceClientBuilder()
+        {
+            JsonCredentials = Environment.GetEnvironmentVariable("GOOGLE_TRANSLATION_CREDENTIAL")
+        };
+        client = builder.Build();
     }
 
     public override Translation TranslateText(string targetLangCode, string text)
@@ -152,7 +159,7 @@ public class GoogleTranslationService : TranslationService
         {
             Contents = { text },
             TargetLanguageCode = targetLangCode,
-            Parent = "projects/871724591698"
+            Parent = parent
         };
         TranslateTextResponse response = client.TranslateText(request);
         return response.Translations[0];

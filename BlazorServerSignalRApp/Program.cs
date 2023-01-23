@@ -24,7 +24,7 @@ builder.Services.AddScoped(sp =>
 });
 
 TranslationService? translationService;
-if (String.IsNullOrEmpty(Environment.GetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS")))
+if (String.IsNullOrEmpty(Environment.GetEnvironmentVariable("GOOGLE_TRANSLATION_CREDENTIAL")) || String.IsNullOrEmpty(Environment.GetEnvironmentVariable("GOOGLE_TRANSLATION_PARENT")))
 {
     translationService = new MockTranslationService();
 }
