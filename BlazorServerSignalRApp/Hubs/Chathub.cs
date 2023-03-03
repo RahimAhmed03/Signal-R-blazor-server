@@ -40,18 +40,5 @@ namespace BlazorServerSignalRApp.Server.Hubs
             var channel = ChannelStorage.Channels.FirstOrDefault(x => x.Name == name);
             channel?.ConnectionIds.Remove(Context.ConnectionId);
         }
-
-        public async Task SendMessageToChannel(string channelName, Message message) {
-            await Clients.Group(channelName).SendAsync("ReceiveMessage", message);
-        }
-
-        public async Task JoinChannel(string name) {
-            await Groups.AddToGroupAsync(Context.ConnectionId, name);
-            if (!ChannelService.Channels.Contains(name)) ChannelService.Channels.Add(name);
-        }
-
-        public async Task QuitChannel(string name) {
-            await Groups.RemoveFromGroupAsync(Context.ConnectionId, name);
-        }
     }
 }
