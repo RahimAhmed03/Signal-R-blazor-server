@@ -86,7 +86,7 @@
                     Image = message.Image,
                 };
 
-            if (!String.IsNullOrEmpty(translationTargetLanguageInput))
+            if (!String.IsNullOrEmpty(translationTargetLanguageInput) && !String.IsNullOrWhiteSpace(messageListContent.Content))
             {
                 var translation = TranslationService.TranslateText(translationTargetLanguageInput, messageListContent.Content);
                 messageListContent.TranslatedContent = translation.TranslatedText;
