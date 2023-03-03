@@ -1,0 +1,81 @@
+# flyctl launch added from .gitignore
+**\*.swp
+**\*.*~
+**\project.lock.json
+**\.DS_Store
+**\*.pyc
+**\nupkg
+
+# Visual Studio Code
+**\.vscode
+
+# Rider
+**\.idea
+
+# User-specific files
+**\*.suo
+**\*.user
+**\*.userosscache
+**\*.sln.docstates
+
+# Build results
+**\[Dd]ebug
+**\[Dd]ebugPublic
+**\[Rr]elease
+**\[Rr]eleases
+**\x64
+**\x86
+**\build
+**\bld
+**\[Bb]in
+**\[Oo]bj
+**\[Oo]ut
+**\msbuild.log
+**\msbuild.err
+**\msbuild.wrn
+
+# Visual Studio 2015
+**\.vs
+
+# Google Cloud API Key
+**\google-api.key.json
+
+# flyctl launch added from BlazorServerSignalRApp\.gitignore
+BlazorServerSignalRApp\**\*.swp
+BlazorServerSignalRApp\**\*.*~
+BlazorServerSignalRApp\**\project.lock.json
+BlazorServerSignalRApp\**\.DS_Store
+BlazorServerSignalRApp\**\*.pyc
+BlazorServerSignalRApp\**\nupkg
+
+# Visual Studio Code
+BlazorServerSignalRApp\**\.vscode
+
+# Rider
+BlazorServerSignalRApp\**\.idea
+
+# User-specific files
+BlazorServerSignalRApp\**\*.suo
+BlazorServerSignalRApp\**\*.user
+BlazorServerSignalRApp\**\*.userosscache
+BlazorServerSignalRApp\**\*.sln.docstates
+
+# Build results
+BlazorServerSignalRApp\**\[Dd]ebug
+BlazorServerSignalRApp\**\[Dd]ebugPublic
+BlazorServerSignalRApp\**\[Rr]elease
+BlazorServerSignalRApp\**\[Rr]eleases
+BlazorServerSignalRApp\**\x64
+BlazorServerSignalRApp\**\x86
+BlazorServerSignalRApp\**\build
+BlazorServerSignalRApp\**\bld
+BlazorServerSignalRApp\**\[Bb]in
+BlazorServerSignalRApp\**\[Oo]bj
+BlazorServerSignalRApp\**\[Oo]ut
+BlazorServerSignalRApp\**\msbuild.log
+BlazorServerSignalRApp\**\msbuild.err
+BlazorServerSignalRApp\**\msbuild.wrn
+
+# Visual Studio 2015
+BlazorServerSignalRApp\**\.vs
+fly.toml
